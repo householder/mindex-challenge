@@ -51,11 +51,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public int numberOfDirectReports(Employee employee) {
-        List<Employee> directReports = employee.getDirectReports();
+        List<String> directReports = employee.getDirectReports();
         if (directReports == null || directReports.isEmpty()) return 0;
         // TODO: either enforce that direct report IDs exist or check for nulls on read
         else return directReports.stream()
-                .mapToInt(e -> 1 + numberOfDirectReports(read(e.getEmployeeId())))
+                .mapToInt(id -> 1 + numberOfDirectReports(read(id)))
                 .sum();
     }
 }

@@ -1,14 +1,16 @@
 package com.mindex.challenge.data;
 
+import org.springframework.data.annotation.Id;
+
 import java.util.List;
 
 public class Employee {
-    private String employeeId;
+    @Id private String employeeId;
     private String firstName;
     private String lastName;
     private String position;
     private String department;
-    private List<Employee> directReports;
+    private List<String> directReports;
 
     public Employee() {
     }
@@ -53,11 +55,11 @@ public class Employee {
         this.department = department;
     }
 
-    public List<Employee> getDirectReports() {
+    public List<String> getDirectReports() {
         return directReports;
     }
 
-    public void setDirectReports(List<Employee> directReports) {
+    public void setDirectReports(List<String> directReports) {
         this.directReports = directReports;
     }
 }

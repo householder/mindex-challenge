@@ -27,7 +27,7 @@ public class ReportingStructureServiceImpl implements ReportingStructureService 
             throw new RuntimeException("Invalid employeeId: " + employeeId);
         }
 
-        int numberOfReports = employeeService.numberOfReports(employee);
+        int numberOfReports = employeeService.numberOfDirectReports(employee);
 
         return new ReportingStructure(employee, numberOfReports);
     }
