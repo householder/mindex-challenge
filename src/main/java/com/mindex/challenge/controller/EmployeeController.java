@@ -5,6 +5,7 @@ import com.mindex.challenge.service.EmployeeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,6 +16,7 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @PostMapping("/employee")
+    @ResponseStatus(HttpStatus.CREATED)
     public Employee create(@RequestBody Employee employee) {
         LOG.debug("Received employee create request for [{}]", employee);
 

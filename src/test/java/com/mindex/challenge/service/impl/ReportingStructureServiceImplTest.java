@@ -19,7 +19,6 @@ import static org.junit.Assert.assertNotNull;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ReportingStructureServiceImplTest {
 
-    private String employeeUrl;
     private String reportingStructureUrl;
 
     private Employee employee1;
@@ -37,7 +36,6 @@ public class ReportingStructureServiceImplTest {
 
     @Before
     public void setup() {
-        employeeUrl = "http://localhost:" + port + "/employee";
         reportingStructureUrl = "http://localhost:" + port + "/reportingstructure/{employeeId}";
         employee1 = employeeService.read("16a596ae-edd3-4847-99fe-c4518e82c86f");
         employee2 = employeeService.read("b7839309-3348-463b-a7e3-5de1c168beb3");
@@ -54,7 +52,7 @@ public class ReportingStructureServiceImplTest {
                 .usingRecursiveComparison()
                 .isEqualTo(new ReportingStructure(employee1,4));
 
-        // Verify employee 1 has 0 direct reports
+        // Verify employee 2 has 0 direct reports
         ReportingStructure reportingStructure2 = restTemplate
                 .getForEntity(reportingStructureUrl, ReportingStructure.class, employee2.getEmployeeId()).getBody();
         assertNotNull(reportingStructure2);

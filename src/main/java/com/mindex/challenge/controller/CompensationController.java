@@ -7,6 +7,7 @@ import com.mindex.challenge.service.EmployeeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class CompensationController {
     private CompensationService compensationService;
 
     @PostMapping("/employee/{employeeId}/compensation")
+    @ResponseStatus(HttpStatus.CREATED)
     public Compensation create(@PathVariable String employeeId, @RequestBody Compensation compensation) {
         LOG.debug("Received compensation create request for employee id [{}]", employeeId);
         compensation.setEmployeeId(employeeId);
