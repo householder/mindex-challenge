@@ -2,6 +2,7 @@ package com.mindex.challenge.service.impl;
 
 import com.mindex.challenge.dao.EmployeeRepository;
 import com.mindex.challenge.data.Employee;
+import com.mindex.challenge.exceptions.EmployeeNotFoundException;
 import com.mindex.challenge.service.EmployeeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = employeeRepository.findByEmployeeId(id);
 
         if (employee == null) {
-            throw new RuntimeException("Invalid employeeId: " + id);
+            throw new EmployeeNotFoundException("Employee not found for employee ID `" + id + "`");
         }
 
         return employee;
@@ -45,6 +46,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee update(Employee employee) {
         LOG.debug("Updating employee [{}]", employee);
+        if (!employeeRepository.existsById(employee.getEmployeeId())) {
+            throw new EmployeeNotFoundException("Employee not found for employee ID `" + employee.getEmployeeId() + "`");
+        }
 
         return employeeRepository.save(employee);
     }
@@ -53,7 +57,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     public int numberOfDirectReports(Employee employee) {
         List<String> directReports = employee.getDirectReports();
         if (directReports == null || directReports.isEmpty()) return 0;
-        // TODO: either enforce that direct report IDs exist or check for nulls on read
         else return directReports.stream()
                 .mapToInt(id -> 1 + numberOfDirectReports(read(id)))
                 .sum();

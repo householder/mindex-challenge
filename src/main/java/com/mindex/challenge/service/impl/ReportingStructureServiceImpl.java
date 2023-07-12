@@ -23,10 +23,6 @@ public class ReportingStructureServiceImpl implements ReportingStructureService 
 
         Employee employee = employeeService.read(employeeId);
 
-        if (employee == null) {
-            throw new RuntimeException("Invalid employeeId: " + employeeId);
-        }
-
         int numberOfReports = employeeService.numberOfDirectReports(employee);
 
         return new ReportingStructure(employee, numberOfReports);

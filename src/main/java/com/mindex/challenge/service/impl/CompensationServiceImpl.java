@@ -2,6 +2,7 @@ package com.mindex.challenge.service.impl;
 
 import com.mindex.challenge.dao.CompensationRepository;
 import com.mindex.challenge.data.Compensation;
+import com.mindex.challenge.exceptions.CompensationNotFoundException;
 import com.mindex.challenge.service.CompensationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -39,8 +39,8 @@ public class CompensationServiceImpl implements CompensationService {
 
         List<Compensation> compensationHistory = compensationRepository.findByEmployeeId(employeeId, sort);
 
-        if (compensationHistory == null) {
-            throw new RuntimeException("Invalid employeeId: " + employeeId);
+        if (compensationHistory == null || compensationHistory.isEmpty()) {
+            throw new CompensationNotFoundException("Compensation not found for employee ID `" + employeeId + "`");
         }
 
         return compensationHistory;
@@ -52,8 +52,8 @@ public class CompensationServiceImpl implements CompensationService {
 
         Compensation compensation = compensationRepository.findByCompensationId(id);
 
-        if (compensation == null || !Objects.equals(compensation.getEmployeeId(), employeeId)) {
-            throw new RuntimeException("Invalid employeeId: " + id);
+        if (compensation == null) {
+            throw new CompensationNotFoundException("Compensation not found for employee ID `" + employeeId + "` and compensation ID `" + id + "`");
         }
 
         return compensation;
