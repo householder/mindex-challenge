@@ -24,6 +24,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee create(Employee employee) {
         LOG.debug("Creating employee [{}]", employee);
         employee.setEmployeeId(UUID.randomUUID().toString());
+        validateDirectReports(employee);
         employeeRepository.insert(employee);
         return employee;
     }
@@ -39,6 +40,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee update(Employee employee) {
         LOG.debug("Updating employee [{}]", employee);
+        validateDirectReports(employee);
         if (!employeeRepository.existsById(employee.getEmployeeId()))
             throw new ResourceNotFoundException(employee.getEmployeeId());
         return employeeRepository.save(employee);
@@ -51,5 +53,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         else return directReports.stream()
                 .mapToInt(id -> 1 + numberOfDirectReports(read(id)))
                 .sum();
+    }
+
+    private void validateDirectReports(Employee employee) {
+        List<String> directReports = employee.getDirectReports();
+        if (directReports != null) directReports.forEach( employeeId -> {
+            if (!employeeRepository.existsById(employeeId)) throw new ResourceNotFoundException(employeeId);
+        });
     }
 }
