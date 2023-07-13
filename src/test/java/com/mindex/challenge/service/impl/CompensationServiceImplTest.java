@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -98,6 +99,26 @@ public class CompensationServiceImplTest {
         assertThat(compensation)
                 .usingRecursiveComparison()
                 .isEqualTo(compensation1);
+    }
+
+    @Test
+    public void testCreateBadRequest() {
+        Compensation testCompensation = new Compensation();
+        testCompensation.setSalary(5555);
+        testCompensation.setEffectiveDate(new GregorianCalendar(2023,Calendar.JULY,13).getTime());
+
+        // confirm 400 when we call create with employeeId provided that does not match URI
+        testCompensation.setEmployeeId(employee2Id);
+        ResponseEntity<Compensation> createResponse1 = restTemplate
+                .postForEntity(url(employee1Id, null), testCompensation, Compensation.class);
+        assertEquals(HttpStatus.BAD_REQUEST, createResponse1.getStatusCode());
+
+        // confirm 400 when we call create with compensationId provided
+        testCompensation.setEmployeeId(employee1Id);
+        testCompensation.setCompensationId(UUID.randomUUID().toString());
+        ResponseEntity<Compensation> createResponse2 = restTemplate
+                .postForEntity(url(employee1Id, null), testCompensation, Compensation.class);
+        assertEquals(HttpStatus.BAD_REQUEST, createResponse2.getStatusCode());
     }
 
     @Test
