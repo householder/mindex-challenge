@@ -20,6 +20,7 @@ public class EmployeeController {
     @ResponseStatus(HttpStatus.CREATED)
     public Employee create(@RequestBody Employee employee) {
         LOG.debug("Received employee create request for [{}]", employee);
+        // prefer letting the user know that the value provided for a valid field will be ignored
         if (employee.getEmployeeId() != null)
             throw new BadRequestException("Invalid request; do not include `employeeId`, it will be generated");
         return employeeService.create(employee);
@@ -34,6 +35,7 @@ public class EmployeeController {
     @PutMapping("/employee/{id}")
     public Employee update(@PathVariable String id, @RequestBody Employee employee) {
         LOG.debug("Received employee update request for id [{}] and employee [{}]", id, employee);
+        // prefer letting the user know that the value provided for a valid field will be ignored
         if (employee.getEmployeeId() != null && !employee.getEmployeeId().equals(id))
             throw new BadRequestException("Invalid request; do not include `employeeId` in request body or ensure it matches URI");
         employee.setEmployeeId(id);

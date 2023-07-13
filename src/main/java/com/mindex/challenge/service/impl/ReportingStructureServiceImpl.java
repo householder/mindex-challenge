@@ -21,6 +21,7 @@ public class ReportingStructureServiceImpl implements ReportingStructureService 
     public ReportingStructure read(String employeeId) {
         LOG.debug("Reading reporting structure for employee id [{}]", employeeId);
 
+        // by calling read through the employee -service- we gain its validation too
         Employee employee = employeeService.read(employeeId);
 
         int numberOfReports = employeeService.numberOfDirectReports(employee);

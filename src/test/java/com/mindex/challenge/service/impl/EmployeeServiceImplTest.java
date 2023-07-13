@@ -28,9 +28,6 @@ public class EmployeeServiceImplTest {
 
     private final HttpHeaders headers = new HttpHeaders();
 
-    @Autowired
-    private EmployeeService employeeService;
-
     @LocalServerPort
     private int port;
 

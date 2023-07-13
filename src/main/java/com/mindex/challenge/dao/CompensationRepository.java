@@ -12,9 +12,11 @@ import java.util.List;
 
 @Repository
 public interface CompensationRepository extends MongoRepository<Compensation, String> {
+    // find by employee ID and support passing in a sort for the result set
     @Query("{employeeId :?0}")
     List<Compensation> findByEmployeeId(String employeeId, Sort sort);
 
+    // find by employee ID and compensation ID at the DAO layer rather than validating employee ID higher up
     @Query("{employeeId :?0, compensationId :?1}")
     Compensation findByCompensationId(String employeeId, String id);
 }

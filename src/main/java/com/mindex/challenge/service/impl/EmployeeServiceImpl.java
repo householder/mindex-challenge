@@ -23,7 +23,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee create(Employee employee) {
         LOG.debug("Creating employee [{}]", employee);
+        // This can also be done via annotation but this is fine
         employee.setEmployeeId(UUID.randomUUID().toString());
+        // Important validation so that the reporting structure isn't broken, leading to unwelcome behavior for that API
         validateDirectReports(employee);
         employeeRepository.insert(employee);
         return employee;
@@ -40,12 +42,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee update(Employee employee) {
         LOG.debug("Updating employee [{}]", employee);
+        // Important validation so that the reporting structure isn't broken, leading to unwelcome behavior for that API
         validateDirectReports(employee);
         if (!employeeRepository.existsById(employee.getEmployeeId()))
             throw new ResourceNotFoundException(employee.getEmployeeId());
         return employeeRepository.save(employee);
     }
 
+    // Programmatic recursion to get the number of direct reports, but this could lead to many trips to the DB.
+    // Research MongoDB support for recursive queries and consider using them -or- consider caching the result of this
+    // function for a given employee if performance is too poor
     @Override
     public int numberOfDirectReports(Employee employee) {
         List<String> directReports = employee.getDirectReports();
@@ -55,6 +61,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .sum();
     }
 
+    // Require that direct report employee IDs are valid (i.e., the employees already exist)
     private void validateDirectReports(Employee employee) {
         List<String> directReports = employee.getDirectReports();
         if (directReports != null) directReports.forEach( employeeId -> {

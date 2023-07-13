@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/*
+    Structure the URIs to treat compensation as a child resource of an employee because the current API requirements
+    only support accessing the compensation for a given employee.
+ */
 @RestController
 public class CompensationController {
     private static final Logger LOG = LoggerFactory.getLogger(CompensationController.class);
@@ -22,6 +26,7 @@ public class CompensationController {
     @ResponseStatus(HttpStatus.CREATED)
     public Compensation create(@PathVariable String employeeId, @RequestBody Compensation compensation) {
         LOG.debug("Received compensation create request for employee id [{}]", employeeId);
+        // prefer letting the user know that the value provided for a valid field will be ignored
         if (compensation.getEmployeeId() != null && !compensation.getEmployeeId().equals(employeeId))
             throw new BadRequestException("Invalid request; do not include `employeeId` or ensure it matches URI");
         if (compensation.getCompensationId() != null)
@@ -30,6 +35,7 @@ public class CompensationController {
         return compensationService.create(compensation);
     }
 
+    // Bonus API that supports seeing a full history of compensation changes (most recent first) for a given employee
     @GetMapping("/employee/{employeeId}/compensation")
     public List<Compensation> readAll(@PathVariable String employeeId) {
         LOG.debug("Received read request for compensation history for employee id [{}]", employeeId);

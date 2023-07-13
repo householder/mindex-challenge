@@ -8,6 +8,7 @@ import java.util.Date;
 public class Compensation {
     @Id private String compensationId;
 
+    // Persist the employee ID, not a copy of the employee entity
     private String employeeId;
 
     private int salary;

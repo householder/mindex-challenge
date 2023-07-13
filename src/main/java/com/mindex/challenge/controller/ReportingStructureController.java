@@ -16,6 +16,7 @@ public class ReportingStructureController {
     @Autowired
     private ReportingStructureService reportingStructureService;
 
+    // Generally try to avoid resource names like this because it's harder to read the URI
     @GetMapping("/reportingstructure/{employeeId}")
     public ReportingStructure read(@PathVariable String employeeId) {
         LOG.debug("Received reporting structure read request for employee id [{}]", employeeId);

@@ -28,6 +28,7 @@ public class CompensationServiceImpl implements CompensationService {
     @Override
     public Compensation create(Compensation compensation) {
         LOG.debug("Creating compensation [{}]", compensation);
+        // This can also be done via annotation but this is fine
         compensation.setCompensationId(UUID.randomUUID().toString());
         compensationRepository.insert(compensation);
         return compensation;

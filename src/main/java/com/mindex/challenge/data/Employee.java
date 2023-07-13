@@ -5,6 +5,8 @@ import org.springframework.data.annotation.Id;
 import java.util.List;
 
 public class Employee {
+    // Since we're not using the standard name "id" for the ID field, important to annotate it for clarity and proper function
+    // The missing annotation was causing a bug in the update employee API
     @Id private String employeeId;
     private String firstName;
     private String lastName;

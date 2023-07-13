@@ -32,9 +32,6 @@ public class CompensationServiceImplTest {
     private final String employee2Id = "b7839309-3348-463b-a7e3-5de1c168beb3";
     private final String employee3Id = "03aa1462-ffa9-4978-901b-7c001562cf6f";
 
-    @Autowired
-    private CompensationService compensationService;
-
     @LocalServerPort
     private int port;
 

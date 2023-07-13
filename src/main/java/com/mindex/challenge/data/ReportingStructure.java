@@ -1,6 +1,8 @@
 package com.mindex.challenge.data;
 
+// This entire model could be moved to a separate "view" package to separate it from the persistence models
 public class ReportingStructure {
+    // Since this isn't persisted, this field will contain the full employee object
     private Employee employee;
     private int numberOfReports;
 
