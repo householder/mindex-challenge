@@ -26,7 +26,8 @@ import static org.junit.Assert.assertNotNull;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CompensationServiceImplTest {
 
-    private String baseUrl;
+    private String compensationUrl;
+    private String compensationIdUrl;
 
     private final String employee1Id = "16a596ae-edd3-4847-99fe-c4518e82c86f";
     private final String employee2Id = "b7839309-3348-463b-a7e3-5de1c168beb3";
@@ -40,7 +41,8 @@ public class CompensationServiceImplTest {
 
     @Before
     public void setup() {
-        baseUrl = "http://localhost:" + port;
+        compensationUrl = "http://localhost:" + port + "/employee/{employeeId}/compensation";
+        compensationIdUrl = compensationUrl + "/{compensationId}";
     }
 
     @Test
@@ -58,25 +60,26 @@ public class CompensationServiceImplTest {
 
         // Create compensation objects
         ResponseEntity<Compensation> createResponse = restTemplate
-                .postForEntity(url(employee1Id, null), testCompensation1, Compensation.class);
+                .postForEntity(compensationUrl, testCompensation1, Compensation.class, employee1Id);
         assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
         Compensation compensation1 = createResponse.getBody();
         assertNotNull(compensation1);
         Compensation compensation2 = restTemplate
-                .postForEntity(url(employee2Id, null), testCompensation2, Compensation.class).getBody();
+                .postForEntity(compensationUrl, testCompensation2, Compensation.class, employee2Id).getBody();
         assertNotNull(compensation1);
         Compensation compensation3 = restTemplate
-                .postForEntity(url(employee2Id, null), testCompensation3, Compensation.class).getBody();
+                .postForEntity(compensationUrl, testCompensation3, Compensation.class, employee2Id).getBody();
         assertNotNull(compensation1);
 
         // Read compensation history for employee 2
         HttpHeaders headers = new HttpHeaders();
         headers.set("accept", "application/json");
         ResponseEntity<List<Compensation>> response = restTemplate.exchange(
-                url(employee2Id, null),
+                compensationUrl,
                 HttpMethod.GET,
                 new HttpEntity<>(null, headers),
-                new ParameterizedTypeReference<List<Compensation>>() {}
+                new ParameterizedTypeReference<List<Compensation>>() {},
+                employee2Id
         );
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -91,7 +94,7 @@ public class CompensationServiceImplTest {
                 .isEqualTo(compensation2);
 
         // Read compensation history for employee 1 by ID
-        Compensation compensation = restTemplate.getForEntity(url(employee1Id, compensation1.getCompensationId()), Compensation.class).getBody();
+        Compensation compensation = restTemplate.getForEntity(compensationIdUrl, Compensation.class, employee1Id, compensation1.getCompensationId()).getBody();
         assertNotNull(compensation);
         assertThat(compensation)
                 .usingRecursiveComparison()
@@ -107,14 +110,14 @@ public class CompensationServiceImplTest {
         // confirm 400 when we call create with employeeId provided that does not match URI
         testCompensation.setEmployeeId(employee2Id);
         ResponseEntity<Compensation> createResponse1 = restTemplate
-                .postForEntity(url(employee1Id, null), testCompensation, Compensation.class);
+                .postForEntity(compensationUrl, testCompensation, Compensation.class, employee1Id);
         assertEquals(HttpStatus.BAD_REQUEST, createResponse1.getStatusCode());
 
         // confirm 400 when we call create with compensationId provided
         testCompensation.setEmployeeId(employee1Id);
         testCompensation.setCompensationId(UUID.randomUUID().toString());
         ResponseEntity<Compensation> createResponse2 = restTemplate
-                .postForEntity(url(employee1Id, null), testCompensation, Compensation.class);
+                .postForEntity(compensationUrl, testCompensation, Compensation.class, employee1Id);
         assertEquals(HttpStatus.BAD_REQUEST, createResponse2.getStatusCode());
     }
 
@@ -125,7 +128,7 @@ public class CompensationServiceImplTest {
         testCompensation.setEffectiveDate(new GregorianCalendar(2023,Calendar.JULY,13).getTime());
 
         ResponseEntity<Compensation> createResponse = restTemplate
-                .postForEntity(url(employee1Id, null), testCompensation, Compensation.class);
+                .postForEntity(compensationUrl, testCompensation, Compensation.class, employee1Id);
         assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
         Compensation compensation = createResponse.getBody();
         assertNotNull(compensation);
@@ -134,10 +137,11 @@ public class CompensationServiceImplTest {
         HttpHeaders headers = new HttpHeaders();
         headers.set("accept", "application/json");
         ResponseEntity<List<Compensation>> readCompensationHistoryResponse1 = restTemplate.exchange(
-                url(employee3Id, null),
+                compensationUrl,
                 HttpMethod.GET,
                 new HttpEntity<>(null, headers),
-                new ParameterizedTypeReference<List<Compensation>>() {}
+                new ParameterizedTypeReference<List<Compensation>>() {},
+                employee3Id
         );
         assertNotNull(readCompensationHistoryResponse1);
         assertEquals(HttpStatus.OK, readCompensationHistoryResponse1.getStatusCode());
@@ -146,27 +150,19 @@ public class CompensationServiceImplTest {
         assertEquals(0, compensationHistory.size());
 
         // check that we get a 404 when we call read all compensations with a bad employee ID
-        ResponseEntity<Object> readCompensationHistoryResponse2 = restTemplate.getForEntity(url("not a real id", null), Object.class);
+        ResponseEntity<Object> readCompensationHistoryResponse2 = restTemplate.getForEntity(compensationUrl, Object.class, "not a real id");
         assertEquals(HttpStatus.NOT_FOUND, readCompensationHistoryResponse2.getStatusCode());
 
         // check that we do get a 404 when we call read compensation by ID with a bad employee ID but valid compensation ID
-        ResponseEntity<Compensation> readCompensationResponse1 = restTemplate.getForEntity(url("not a real id", compensation.getCompensationId()), Compensation.class);
+        ResponseEntity<Compensation> readCompensationResponse1 = restTemplate.getForEntity(compensationIdUrl, Compensation.class, "not a real id", compensation.getCompensationId());
         assertEquals(HttpStatus.NOT_FOUND, readCompensationResponse1.getStatusCode());
 
         // check that we do get a 404 when we call read compensation by ID with a valid employee ID but bad compensation ID
-        ResponseEntity<Compensation> readCompensationResponse2 = restTemplate.getForEntity(url(compensation.getEmployeeId(), "not a real id"), Compensation.class);
+        ResponseEntity<Compensation> readCompensationResponse2 = restTemplate.getForEntity(compensationIdUrl, Compensation.class, compensation.getEmployeeId(), "not a real id");
         assertEquals(HttpStatus.NOT_FOUND, readCompensationResponse2.getStatusCode());
 
         // check that we do get a 404 when we call read compensation by ID with a valid employee ID and compensation ID but compensation doesn't belong to that employee
-        ResponseEntity<Compensation> readCompensationResponse3 = restTemplate.getForEntity(url(employee2Id, compensation.getCompensationId()), Compensation.class);
+        ResponseEntity<Compensation> readCompensationResponse3 = restTemplate.getForEntity(compensationIdUrl, Compensation.class, employee2Id, compensation.getCompensationId());
         assertEquals(HttpStatus.NOT_FOUND, readCompensationResponse3.getStatusCode());
-    }
-
-    private String url(String employeeId, String compensationId) {
-        String url = baseUrl + "/employee";
-        if (employeeId != null) url += "/" + employeeId;
-        url += "/compensation";
-        if (compensationId != null) url += "/" + compensationId;
-        return url;
     }
 }
