@@ -10,9 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
@@ -67,5 +70,11 @@ public class ReportingStructureServiceImplTest {
         assertThat(reportingStructure3)
                 .usingRecursiveComparison()
                 .isEqualTo(new ReportingStructure(employee3,2));
+    }
+
+    @Test
+    public void testReadNotFound() {
+        ResponseEntity<ReportingStructure> readReportingStructureResponse = restTemplate.getForEntity(reportingStructureUrl, ReportingStructure.class, "not a real id");
+        assertEquals(HttpStatus.NOT_FOUND, readReportingStructureResponse.getStatusCode());
     }
 }

@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertEquals;
@@ -49,14 +46,17 @@ public class EmployeeServiceImplTest {
         testEmployee.setPosition("Developer");
 
         // Create checks
-        Employee createdEmployee = restTemplate.postForEntity(employeeUrl, testEmployee, Employee.class).getBody();
-
+        ResponseEntity<Employee> createResponse = restTemplate.postForEntity(employeeUrl, testEmployee, Employee.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        Employee createdEmployee = createResponse.getBody();
+        assertNotNull(createdEmployee);
         assertNotNull(createdEmployee.getEmployeeId());
         assertEmployeeEquivalence(testEmployee, createdEmployee);
 
 
         // Read checks
         Employee readEmployee = restTemplate.getForEntity(employeeIdUrl, Employee.class, createdEmployee.getEmployeeId()).getBody();
+        assertNotNull(readEmployee);
         assertEquals(createdEmployee.getEmployeeId(), readEmployee.getEmployeeId());
         assertEmployeeEquivalence(createdEmployee, readEmployee);
 
@@ -75,6 +75,12 @@ public class EmployeeServiceImplTest {
                         readEmployee.getEmployeeId()).getBody();
 
         assertEmployeeEquivalence(readEmployee, updatedEmployee);
+    }
+
+    @Test
+    public void testReadNotFound() {
+        ResponseEntity<Employee> readEmployeeResponse = restTemplate.getForEntity(employeeIdUrl, Employee.class, "not a real id");
+        assertEquals(HttpStatus.NOT_FOUND, readEmployeeResponse.getStatusCode());
     }
 
     private static void assertEmployeeEquivalence(Employee expected, Employee actual) {
