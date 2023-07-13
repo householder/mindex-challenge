@@ -2,7 +2,7 @@ package com.mindex.challenge.service.impl;
 
 import com.mindex.challenge.dao.EmployeeRepository;
 import com.mindex.challenge.data.Employee;
-import com.mindex.challenge.exceptions.EmployeeNotFoundException;
+import com.mindex.challenge.exceptions.ResourceNotFoundException;
 import com.mindex.challenge.service.EmployeeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,33 +23,24 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee create(Employee employee) {
         LOG.debug("Creating employee [{}]", employee);
-
         employee.setEmployeeId(UUID.randomUUID().toString());
         employeeRepository.insert(employee);
-
         return employee;
     }
 
     @Override
     public Employee read(String id) {
         LOG.debug("Reading employee with id [{}]", id);
-
         Employee employee = employeeRepository.findByEmployeeId(id);
-
-        if (employee == null) {
-            throw new EmployeeNotFoundException("Employee not found for employee ID `" + id + "`");
-        }
-
+        if (employee == null) throw new ResourceNotFoundException(id);
         return employee;
     }
 
     @Override
     public Employee update(Employee employee) {
         LOG.debug("Updating employee [{}]", employee);
-        if (!employeeRepository.existsById(employee.getEmployeeId())) {
-            throw new EmployeeNotFoundException("Employee not found for employee ID `" + employee.getEmployeeId() + "`");
-        }
-
+        if (!employeeRepository.existsById(employee.getEmployeeId()))
+            throw new ResourceNotFoundException(employee.getEmployeeId());
         return employeeRepository.save(employee);
     }
 

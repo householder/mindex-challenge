@@ -66,8 +66,10 @@ public class CompensationServiceImplTest {
         testCompensation3.setEffectiveDate(new GregorianCalendar(2023,Calendar.JULY,10).getTime());
 
         // Create compensation objects
-        Compensation compensation1 = restTemplate
-                .postForEntity(url(employee1.getEmployeeId(), null), testCompensation1, Compensation.class).getBody();
+        ResponseEntity<Compensation> createResponse = restTemplate
+                .postForEntity(url(employee1.getEmployeeId(), null), testCompensation1, Compensation.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        Compensation compensation1 = createResponse.getBody();
         assertNotNull(compensation1);
         Compensation compensation2 = restTemplate
                 .postForEntity(url(employee2.getEmployeeId(), null), testCompensation2, Compensation.class).getBody();
