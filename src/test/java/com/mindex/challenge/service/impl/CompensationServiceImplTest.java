@@ -138,6 +138,10 @@ public class CompensationServiceImplTest {
         // check that we do get a 404 when we call read compensation by ID with a valid employee ID but bad compensation ID
         ResponseEntity<Compensation> readCompensationResponse2 = restTemplate.getForEntity(url(compensation.getEmployeeId(), "not a real id"), Compensation.class);
         assertEquals(HttpStatus.NOT_FOUND, readCompensationResponse2.getStatusCode());
+
+        // check that we do get a 404 when we call read compensation by ID with a valid employee ID and compensation ID but compensation doesn't belong to that employee
+        ResponseEntity<Compensation> readCompensationResponse3 = restTemplate.getForEntity(url(employee2Id, compensation.getCompensationId()), Compensation.class);
+        assertEquals(HttpStatus.NOT_FOUND, readCompensationResponse3.getStatusCode());
     }
 
     private String url(String employeeId, String compensationId) {

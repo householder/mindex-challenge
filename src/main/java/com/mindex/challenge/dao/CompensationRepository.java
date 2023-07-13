@@ -15,7 +15,6 @@ public interface CompensationRepository extends MongoRepository<Compensation, St
     @Query("{employeeId :?0}")
     List<Compensation> findByEmployeeId(String employeeId, Sort sort);
 
-//    @Query("{employeeId :?0, id :?1}")
-//    Compensation findByCompensationId(String employeeId, String id);
-    Compensation findByCompensationId(String id);
+    @Query("{employeeId :?0, compensationId :?1}")
+    Compensation findByCompensationId(String employeeId, String id);
 }

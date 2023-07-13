@@ -45,7 +45,7 @@ public class CompensationServiceImpl implements CompensationService {
     public Compensation read(String employeeId, String id) {
         LOG.debug("Reading compensation with id [{}] for employee id [{}]", id, employeeId);
         if (!employeeRepository.existsById(employeeId)) throw new ResourceNotFoundException(employeeId);
-        Compensation compensation = compensationRepository.findByCompensationId(id);
+        Compensation compensation = compensationRepository.findByCompensationId(employeeId, id);
         if (compensation == null) throw new ResourceNotFoundException(id);
         return compensation;
     }
